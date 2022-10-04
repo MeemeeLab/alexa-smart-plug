@@ -4,7 +4,7 @@ export class AlexaSmartPlugController {
     /**
      * @param force Pass true when you have issues with this function
      */
-    public async getState(force: boolean): Promise<boolean>
+    public async getState(force?: boolean): Promise<boolean>
 
     /**
      * @param force Pass true when you have issues with this function

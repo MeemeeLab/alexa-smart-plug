@@ -1,12 +1,15 @@
 type None = null | undefined;
 
 export class AlexaSmartPlugController {
-    public async setState(value: boolean): Promise<void>
+    /**
+     * @param force Pass true when you have issues with this function
+     */
+    public async getState(force: boolean): Promise<void>
 
     /**
      * @param force Pass true when you have issues with this function
      */
-    public async getState(value: boolean, force?: boolean): Promise<boolean>
+    public async setState(value: boolean, force?: boolean): Promise<void>
 }
 
 export class AlexaSmartPlug {

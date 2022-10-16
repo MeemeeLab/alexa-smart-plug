@@ -8,5 +8,5 @@
   "main": "./src/index.js",
   "repository": "github:MeemeeLab/alexa-smart-plug",
   "homepage": "https://github.com/MeemeeLab/alexa-smart-plug#readme",
-  "version": "1.0.2-rc.1"
+  "version": "1.0.3-rc.1"
 }

@@ -1,5 +1,7 @@
 import fetch from 'node-fetch';
 import { inspect } from 'util';
+import https from 'https';
+import dns from 'dns';
 
 class UnAuthenticatedError extends Error {
     constructor() { super(); }
@@ -11,6 +13,11 @@ class NoAmazonDomainError extends Error {
     constructor() { super(); }
     name = 'NoAmazonDomainError';
     message = 'No amazon domain provided.';
+}
+
+class OptionError extends Error {
+    constructor( message ) { super(); this.message = message; }
+    name = 'OptionError';
 }
 
 class UnknownStateError extends Error {
@@ -44,7 +51,7 @@ class AlexaController {
 
     static _cachedNetworkDetails = []; // used in AlexaSmartPlugController
 
-    constructor(cookie, amazonDomain) {
+    constructor(cookie, amazonDomain, options) {
         if (cookie === undefined) {
             // cSpell:disable-next-line
             if (process.env['ALEXA_SMARTPLUG_COOKIE'] !== undefined) {
@@ -65,21 +72,45 @@ class AlexaController {
         }
         this._amazonDomain = amazonDomain;
 
-        this.ROUTINES_VERSION = '3.0.128540';
         this.SMARTHOME_SKILL_ID = 'amzn1.ask.1p.smarthome'; // cSpell:disable-line
         this.API_PATH = {
             BEHAVIORS_ENTITIES: 'https://alexa.{AMAZON_DOMAIN}/api/behaviors/entities?skillId={SKILL_ID}',
             PHOENIX: 'https://alexa.{AMAZON_DOMAIN}/api/phoenix?includeRelationships=true',
             PHOENIX_STATE: 'https://alexa.{AMAZON_DOMAIN}/api/phoenix/state'
         };
+
+        if (options) {
+            if (options.agent && options.alexaIP) {
+                throw new OptionError('Cannot specify options.agent and options.alexaIP in same instance');
+            }
+
+            if (options.agent) {
+                this.agent = options.agent;
+            }
+            if (options.alexaIP) {
+                const agent = new https.Agent({
+                    lookup: async (host, _, cb) => {
+                        if (host === 'alexa.' + amazonDomain) {
+                            cb(null, options.alexaIP, 4);
+                        } else {
+                            cb(null, (await dns.promises.resolve(host))[0], 4);
+                        }
+                    }
+                });
+                this.agent = agent;
+            }
+        }
     }
 
     async _fetch(url, init = {}) {
+        if (init === undefined) init = {};
+        init.agent = this.agent;
         if (init.headers === undefined) init.headers = {};
-        if (init.headers.cookie === undefined) {
-            init.headers.cookie = this._cookie;
+        init.headers['User-Agent'] = 'PitanguiBridge/2.2.479076.0-[PLATFORM=Android][MANUFACTURER=][RELEASE=10][BRAND=][SDK=29][MODEL=]';
+        if (init.headers.Cookie === undefined) {
+            init.headers.Cookie = this._cookie;
         } else {
-            init.headers.cookie = init.headers.cookie + '; ' + this._cookie;
+            init.headers.Cookie = init.headers.cookie + '; ' + this._cookie;
         }
 
         return await fetch(url, init);

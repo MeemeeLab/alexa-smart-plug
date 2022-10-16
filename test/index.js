@@ -1,7 +1,7 @@
-import COOKIE from "./index.config.js";
+import { COOKIE, AMAZON_DOMAIN, IP } from "./index.config.js";
 import AlexaController from "./../src/index.js";
 
-const alexa = new AlexaController(COOKIE, 'amazon.co.jp');
+const alexa = new AlexaController(COOKIE, AMAZON_DOMAIN, { alexaIP: IP });
 const plugs = await alexa.getAllDevices();
 
 const controller = plugs[0].getController();

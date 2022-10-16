@@ -1,32 +1,40 @@
 type None = null | undefined;
 
+interface Options {}
+interface OptionsWithAlexaIP extends Options {
+    alexaIP: string;
+}
+interface OptionsWithAgent extends Options {
+    agent: import('https').Agent;
+}
+
 export class AlexaSmartPlugController {
     /**
      * @param force Pass true when you have issues with this function
      */
-    public async getState(force?: boolean): Promise<boolean>
+    public async getState(force?: boolean): Promise<boolean>;
 
     /**
      * @param force Pass true when you have issues with this function
      */
-    public async setState(value: boolean, force?: boolean): Promise<void>
+    public async setState(value: boolean, force?: boolean): Promise<void>;
 }
 
 export class AlexaSmartPlug {
     private constructor() {}
 
-    public getId(): string
-    public getName(): string
-    public getDescription(): string
-    public getAvailability(): 'AVAILABLE' // not sure what sentence might be set to availability, and what it used for
+    public getId(): string;
+    public getName(): string;
+    public getDescription(): string;
+    public getAvailability(): 'AVAILABLE'; // not sure what sentence might be set to availability, and what it used for
 
-    public getController(): AlexaSmartPlugController
+    public getController(): AlexaSmartPlugController;
 
-    public toString(): string
+    public toString(): string;
 }
 
 export default class AlexaController {
-    public constructor(cookie: string | None, amazonDomain: string | None)
+    public constructor(cookie: string | None, amazonDomain: string | None, options: OptionsWithAlexaIP | OptionsWithAgent);
 
     // These can be changed, but I don't recommend doing it except for API changes
     // If these got changed, please submit PR
@@ -38,5 +46,5 @@ export default class AlexaController {
         PHOENIX_STATE: 'https://alexa.{AMAZON_DOMAIN}/api/phoenix/state'
     };
 
-    public async getAllDevices(): Promise<AlexaSmartPlug[]>
+    public async getAllDevices(): Promise<AlexaSmartPlug[]>;
 }
